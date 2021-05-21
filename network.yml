@@ -1,15 +1,25 @@
-matsoo-5g:
-  Type: AWS::EC2::VPC
-  Properties:
-    CidrBlock: 1.0.0.0/16
-    EnableDnsSupport: 'false'
-    EnableDnsHostnames: 'false'
-    InstanceTenancy: dedicated
-    Tags:
-     - Key: wavelength
-       Value: enable
-
-atl-wl:
-	Type: AWS::EC2::CarrierGateway
-	Properties: 
-		VpcId: !GetAtt matsoo-5g
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Matsoo Network"
+Parameters:
+  SystemName:
+    Description: An system name that is prefixed to resource names
+    Type: String
+    Default: matsoo
+Resources:
+  MatsooVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 1.0.0.0/16
+      EnableDnsSupport: 'false'
+      EnableDnsHostnames: 'false'
+      InstanceTenancy: dedicated
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-vpc
+  AtlWL:
+    Type: AWS::EC2::CarrierGateway
+    Properties: 
+      VpcId: !Ref MatsooVPC
+      Tags:
+        - Key: Name
+          Value: atl-wl
