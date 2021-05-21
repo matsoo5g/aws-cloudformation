@@ -1,0 +1,15 @@
+matsoo-5g:
+  Type: AWS::EC2::VPC
+  Properties:
+    CidrBlock: 1.0.0.0/16
+    EnableDnsSupport: 'false'
+    EnableDnsHostnames: 'false'
+    InstanceTenancy: dedicated
+    Tags:
+     - Key: wavelength
+       Value: enable
+
+atl-wl:
+	Type: AWS::EC2::CarrierGateway
+	Properties: 
+		VpcId: !GetAtt matsoo-5g
