@@ -2,17 +2,41 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: "Matsoo Network"
 Parameters:
   SystemName:
-    Description: An system name that is prefixed to resource names
+    Description: "A system name that is prefixed to resource names"
     Type: String
     Default: matsoo
+  VpcCidrRange:
+    Description: "CIDR of this VPC"
+    Type: String
+    Default: 1.0.0.0/18
+
+  PubSubnet1CidrRange:
+    Description: "CIDR of public subnet 1"
+    Type: String
+    Default: 1.0.0.0/24
+
+  PubSubnet2CidrRange:
+    Description: "CIDR of public subnet 2"
+    Type: String
+    Default: 1.0.10.0/24
+
+  PrivSubnet1CidrRange:
+    Description: "CIDR of private subnet 1"
+    Type: String
+    Default: 1.0.20.0/24
+
+  PrivSubnet2CidrRange:
+    Description: "CIDR of private subnet 2"
+    Type: String
+    Default: 1.0.30.0/24
+
 Resources:
   MatsooVPC:
     Type: AWS::EC2::VPC
     Properties:
-      CidrBlock: 1.0.0.0/16
-      EnableDnsSupport: 'false'
-      EnableDnsHostnames: 'false'
-      InstanceTenancy: dedicated
+      CidrBlock: !Ref VpcCidrRange
+      EnableDnsSupport: 'true'
+      EnableDnsHostnames: 'true'
       Tags:
         - Key: Name
           Value: !Sub ${SystemName}-vpc
@@ -30,51 +54,7 @@ Resources:
       InternetGatewayId: !Ref InternetGW
       VpcId: !Ref MatsooVPC
 
-  PublicSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref MatsooVPC
-      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
-      CidrBlock: 1.0.0.0/24
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: !Sub ${SystemName}-pub-sn-az1
-
-  PublicSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref MatsooVPC
-      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
-      CidrBlock: 1.0.125.0/24
-      MapPublicIpOnLaunch: true
-      Tags:
-        - Key: Name
-          Value: !Sub ${SystemName}-pub-sn-az2
-
-  PrivateSubnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref MatsooVPC
-      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
-      CidrBlock: 1.0.66.0/24
-      MapPublicIpOnLaunch: false
-      Tags:
-        - Key: Name
-          Value: !Sub ${SystemName}-priv-sn-az1
-
-  PrivateSubnet2:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref MatsooVPC
-      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
-      CidrBlock: 1.0.250.0/24
-      MapPublicIpOnLaunch: false
-      Tags:
-        - Key: Name
-          Value: !Sub ${SystemName}-priv-sn-az2
-
-  AtlWL:
+  AtlWavelength:
     Type: AWS::EC2::CarrierGateway
     Properties: 
       VpcId: !Ref MatsooVPC
@@ -82,13 +62,71 @@ Resources:
         - Key: Name
           Value: atl-wl
 
-  NatGateway1EIP:
-    Type: AWS::EC2::EIP
-    DependsOn: InternetGWAttachment
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
     Properties:
-      Domain: vpc
+      VpcId: !Ref MatsooVPC
+      AvailabilityZone: !Select 
+        - 0
+        - !GetAZs ""
+      CidrBlock: !Ref PubSubnet1CidrRange
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-pub-sn-1
 
-  NatGateway2EIP:
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MatsooVPC
+      AvailabilityZone: !Select 
+        - 2
+        - !GetAZs ""
+      CidrBlock: !Ref PubSubnet2CidrRange
+      MapPublicIpOnLaunch: true
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-pub-sn-2
+
+  PrivateSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MatsooVPC
+      AvailabilityZone: !Select 
+        - 0
+        - !GetAZs ""
+      CidrBlock: !Ref PrivSubnet1CidrRange
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-priv-sn-1
+
+  PrivateSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MatsooVPC
+      AvailabilityZone: !Select 
+        - 2
+        - !GetAZs ""
+      CidrBlock: !Ref PrivSubnet2CidrRange
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-priv-sn-2
+
+  WavelengthPrivateSubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref MatsooVPC
+      AvailabilityZone: us-east-1-wl1-atl-wlz-1
+      CidrBlock: 1.0.250.0/24
+      MapPublicIpOnLaunch: false
+      Tags:
+        - Key: Name
+          #Value: atl-wl
+          Value: !Sub ${SystemName}-priv-sn-wl
+
+  NatGatewayEIP1:
     Type: AWS::EC2::EIP
     DependsOn: InternetGWAttachment
     Properties:
@@ -97,13 +135,19 @@ Resources:
   NatGateway1:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt NatGateway1EIP.AllocationId
+      AllocationId: !GetAtt NatGatewayEIP1.AllocationId
       SubnetId: !Ref PublicSubnet1
+
+  NatGatewayEIP2:
+    Type: AWS::EC2::EIP
+    DependsOn: InternetGWAttachment
+    Properties:
+      Domain: vpc
 
   NatGateway2:
     Type: AWS::EC2::NatGateway
     Properties:
-      AllocationId: !GetAtt NatGateway2EIP.AllocationId
+      AllocationId: !GetAtt NatGatewayEIP2.AllocationId
       SubnetId: !Ref PublicSubnet2
 
   PublicRouteTable:
@@ -122,18 +166,17 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGW
 
-  PubSubnet1RTAssociation:
+  PublicSubnetRTAssociation1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet1
 
-  PubSubnet2RTAssociation:
+  PublicSubnetRTAssociation2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PublicRouteTable
       SubnetId: !Ref PublicSubnet2
-
 
   PrivateRouteTable1:
     Type: AWS::EC2::RouteTable
@@ -141,7 +184,7 @@ Resources:
       VpcId: !Ref MatsooVPC
       Tags:
         - Key: Name
-          Value: !Sub ${SystemName}-priv-route-az1
+          Value: !Sub ${SystemName}-priv-route-1
 
   DefaultPrivateRoute1:
     Type: AWS::EC2::Route
@@ -150,7 +193,7 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway1
 
-  PrivSubnet1RTAssociation:
+  PrivateSubnetRTAssociation1:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PrivateRouteTable1
@@ -162,7 +205,7 @@ Resources:
       VpcId: !Ref MatsooVPC
       Tags:
         - Key: Name
-          Value: !Sub ${SystemName}-priv-route-az2
+          Value: !Sub ${SystemName}-priv-route-2
 
   DefaultPrivateRoute2:
     Type: AWS::EC2::Route
@@ -171,15 +214,36 @@ Resources:
       DestinationCidrBlock: 0.0.0.0/0
       NatGatewayId: !Ref NatGateway2
 
-  PrivSubnet2RTAssociation:
+  PrivateSubnetRTAssociation2:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       RouteTableId: !Ref PrivateRouteTable2
       SubnetId: !Ref PrivateSubnet2
 
-#  NoIngressSecurityGroup:
-#    Type: AWS::EC2::SecurityGroup
-#    Properties:
-#      GroupName: "no-ingress-sg"
-#      GroupDescription: "Security group with no ingress rule"
-#      VpcId: !Ref VPC
+  WavelengthRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      VpcId: !Ref MatsooVPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${SystemName}-priv-route-wl
+
+  DefaultWavelengthRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Ref WavelengthRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      CarrierGatewayId: !Ref AtlWavelength
+
+  WavelengthSubnetRTAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      RouteTableId: !Ref WavelengthRouteTable
+      SubnetId: !Ref WavelengthPrivateSubnet
+
+  EksClusterSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "eks-cluster-sg"
+      GroupDescription: "Security group for EKS control plane (cluster)"
+      VpcId: !Ref MatsooVPC

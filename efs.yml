@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "EFS for K8s"
+Parameters:
+  VpcCidr:
+    Description: CIDR of Matsoo VPC
+    Type: String
+    Default: 10.0.0.0/16
+  MatsooVPC:
+    Description: VPC ID of Matsoo VPC
+    Type: AWS::EC2::VPC::Id
+
+Resources:
+  FileSystem:
+    Type: AWS::EFS::FileSystem
+    Properties: 
+      PerformanceMode: generalPurpose
+
+  EfsSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "efs-sg"
+      GroupDescription: "Security group for allowing NFS traffic"
+      VpcId: !Ref MatsooVPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 2049
+          ToPort: 2049
+          CidrIp: !Ref VpcCidr
+
+Outputs:
+  FileSystemId: 
+    Description: ID of EFS
+    Value: !Ref FileSystem

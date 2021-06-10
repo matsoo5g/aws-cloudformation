@@ -1,0 +1,133 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Matsoo repos for docker images"
+Resources:
+  OpsRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-ops"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic ops"
+  OpsDbRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-ops-db"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic ops db"
+  AppServerRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "app-server"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - original server"
+  StaticRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-static"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic static API server"
+  MidCacheRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-mid"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic mid-tier cache server"
+  EdgeCacheRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-edge"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic edge-tier cache server"
+  VaultRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-vault"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic vault private key manager"
+  StatsRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-stats"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic statistics"
+  StatsDbRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-stats-db"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic statistics db"
+  RouterRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-router"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic router (CDN's DNS)"
+  MonitorRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-monitor"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic monitor"
+  SmtpRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-smtp"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic SMTP server"
+  EnrollerRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-enroller"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "ATC CDN-in-a-Box - traffic enroller"

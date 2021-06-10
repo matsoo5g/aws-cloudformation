@@ -12,6 +12,7 @@ Resources:
       RoleName: !Sub ${SystemName}-cluster
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
@@ -33,7 +34,7 @@ Resources:
           - Effect: Allow
             Principal:
               Service:
-                - ec2.amazonaws.com
+                - eks-fargate-pods.amazonaws.com
             Action:
               - 'sts:AssumeRole'
   EksWorkerRole:
@@ -42,6 +43,7 @@ Resources:
       RoleName: !Sub ${SystemName}-worker
       ManagedPolicyArns: 
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
@@ -49,6 +51,6 @@ Resources:
           - Effect: Allow
             Principal:
               Service:
-                - eks-fargate-pods.amazonaws.com
+                - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
