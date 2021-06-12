@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "Matsoo Test Client Bucket"
+Parameters:
+  AssetsBucketName:
+    Description: The root bucket name.
+    Type: String
+    Default: matsoo5gclient
+
+Resources:
+  AssetsBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: Private
+      BucketName: !Ref AssetsBucketName
+      LoggingConfiguration:
+        DestinationBucketName: !Ref LoggingBucket
+        LogFilePrefix: !Join
+          - ""
+          - - !Ref AssetsBucketName
+            - "-access-logs"
+    DeletionPolicy: Delete
+  LoggingBucket:
+    Type: "AWS::S3::Bucket"
+    Properties:
+      AccessControl: LogDeliveryWrite
+    DeletionPolicy: Delete
+  cloudfrontdistribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Origins:
+          - DomainName: !GetAtt
+              - AssetsBucket
+              - DomainName
+            Id: !Join
+              - "-"
+              - - "S3"
+                - !Ref AssetsBucketName
+            S3OriginConfig:
+              OriginAccessIdentity: ""
+
+        DefaultCacheBehavior:
+          AllowedMethods: ["GET", "HEAD"]
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6
+          Compress: false
+          SmoothStreaming: true
+          TargetOriginId: !Join
+            - "-"
+            - - "S3"
+              - !Ref AssetsBucketName
+          ViewerProtocolPolicy: redirect-to-https
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+
+Outputs:
+  BucketName:
+    Value: !Ref LoggingBucket
+    Description: Name of the logging bucket.
+  AssetsBucketSecureURL:
+    Value: !Join
+      - ""
+      - - "https://"
+        - !GetAtt
+          - AssetsBucket
+          - DomainName
+    Description: Name of S3 bucket to hold website content
+
+  CloudfrontDomain:
+    Value: !GetAtt
+      - cloudfrontdistribution
+      - DomainName
