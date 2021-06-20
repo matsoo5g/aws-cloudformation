@@ -131,3 +131,13 @@ Resources:
         Architectures:
           - "x86"
         RepositoryDescription: "ATC CDN-in-a-Box - traffic enroller"
+  EnrollHelperRepo:
+    Type: AWS::ECR::PublicRepository
+    Properties:
+      RepositoryName: "cdn-enroll-helper"
+      RepositoryCatalogData:
+        OperatingSystems:
+          - "Linux"
+        Architectures:
+          - "x86"
+        RepositoryDescription: "Helping enroller"

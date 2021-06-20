@@ -8,7 +8,7 @@ Parameters:
   VpcCidrRange:
     Description: CIDR of this VPC
     Type: String
-    Default: 1.0.0.0/16
+    Default: 10.0.0.0/16
   ClusterSecurityGroupList:
     Description: EKS cluster's security groups
     Type: List<AWS::EC2::SecurityGroup::Id>
@@ -21,9 +21,18 @@ Parameters:
   NodeIamRole:
     Description: EKS nodes' IAM role
     Type: String
-  PrivateSubnetList:
-    Description: EKS Node's private subnets 
-    Type: List<AWS::EC2::Subnet::Id>
+  NodeGroupMinSize:
+    Type: Number
+    Description: Minimum size of Node Group.
+    Default: 2
+  NodeGroupDesiredSize:
+    Type: Number
+    Description: Desired size of Node Group.
+    Default: 2
+  NodeGroupMaxSize:
+    Type: Number
+    Description: Maximum size of Node Group.
+    Default: 2
 
 Resources:
   EksCluster:
@@ -43,9 +52,7 @@ Resources:
       ClusterName: !Ref EksCluster
       NodeRole: !Ref NodeIamRole
       ScalingConfig:
-        MinSize: 1
-        DesiredSize: 1
-        MaxSize: 1
-      Labels:
-        kubernetes.io/cluster/matsoo: owned
-      Subnets: !Ref PrivateSubnetList
+        MinSize: !Ref NodeGroupMinSize
+        DesiredSize: !Ref NodeGroupDesiredSize
+        MaxSize: !Ref NodeGroupMaxSize
+      Subnets: !Ref ClusterSubnetList

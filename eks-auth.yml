@@ -54,3 +54,47 @@ Resources:
                 - ec2.amazonaws.com
             Action:
               - 'sts:AssumeRole'
+
+  EfsCsiDriverPolicy:
+    Type: 'AWS::IAM::Policy'
+    Properties:
+      PolicyName: EKS_EFS_CSI_Driver_Policy
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - 'elasticfilesystem:DescribeFileSystems'
+              - 'elasticfilesystem:DescribeAccessPoints'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'elasticfilesystem:CreateAccessPoint'
+            Resource: '*'
+            Condition:
+              StringLike:
+                aws:RequestTag/efs.csi.aws.com/cluster: "true"
+          - Effect: Allow
+            Action:
+              - 'elasticfilesystem:DeleteAccessPoint'
+            Resource: '*'
+            Condition:
+              StringEquals:
+                aws:RequestTag/efs.csi.aws.com/cluster: "true"
+      Roles:
+        - !Ref EfsRole
+
+  EfsRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub ${SystemName}-efs
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - 'sts:AssumeRole'
+

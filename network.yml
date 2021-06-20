@@ -8,7 +8,7 @@ Parameters:
   VpcCidrRange:
     Description: "CIDR of this VPC"
     Type: String
-    Default: 1.0.0.0/18
+    Default: 1.0.0.0/16
 
   PubSubnet1CidrRange:
     Description: "CIDR of public subnet 1"
@@ -118,7 +118,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref MatsooVPC
-      AvailabilityZone: us-east-1-wl1-atl-wlz-1
+      AvailabilityZone: us-east-1-wl1-bos-wlz-1
       CidrBlock: 1.0.250.0/24
       MapPublicIpOnLaunch: false
       Tags:

@@ -8,6 +8,15 @@ Parameters:
   MatsooVPC:
     Description: VPC ID of Matsoo VPC
     Type: AWS::EC2::VPC::Id
+  EksNodeSecurityGroup:
+    Description: For EFS networking access permission
+    Type: AWS::EC2::SecurityGroup::Id
+  PrivSubnet1:
+    Description: ID of private subnet 1 in Matsoo VPC
+    Type: AWS::EC2::Subnet::Id
+  PrivSubnet2:
+    Description: ID of private subnet 2 in Matsoo VPC
+    Type: AWS::EC2::Subnet::Id
 
 Resources:
   FileSystem:
@@ -15,18 +24,22 @@ Resources:
     Properties: 
       PerformanceMode: generalPurpose
 
-  EfsSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: "efs-sg"
-      GroupDescription: "Security group for allowing NFS traffic"
-      VpcId: !Ref MatsooVPC
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          FromPort: 2049
-          ToPort: 2049
-          CidrIp: !Ref VpcCidr
+  MountTargetPrivSubnet1:
+    Type: AWS::EFS::MountTarget
+    Properties: 
+      FileSystemId: !Ref FileSystem
+      SubnetId: !Ref PrivSubnet1
+      SecurityGroups: 
+        - !Ref EksNodeSecurityGroup
 
+  MountTargetPrivSubnet2:
+    Type: AWS::EFS::MountTarget
+    Properties: 
+      FileSystemId: !Ref FileSystem
+      SubnetId: !Ref PrivSubnet2
+      SecurityGroups: 
+        - !Ref EksNodeSecurityGroup
+ 
 Outputs:
   FileSystemId: 
     Description: ID of EFS
